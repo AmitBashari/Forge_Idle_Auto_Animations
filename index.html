@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Forge UI Mockup</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1e293b;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        #mobile-container {
+            width: 350px;
+            height: 600px;
+            background-color: #e0f7fa;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            border: 4px solid #0f172a;
+        }
+
+        #forge-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 30px;
+            position: relative;
+        }
+
+        /* ====== FORGE BASE ====== */
+        #forge-base {
+            position: relative;
+            width: 220px;
+            height: 110px;
+            z-index: 5;
+            transition: transform 0.05s ease;
+        }
+
+        .forge-top {
+            width: 200px; height: 54px;
+            background: radial-gradient(ellipse at center, #737373 0%, #404040 100%);
+            border-radius: 50%; border: 2px solid #171717;
+            position: absolute; top: 0; left: 10px; z-index: 3;
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.5);
+            /* Required to keep the sheen on the top surface */
+            overflow: hidden; 
+        }
+
+        /* --- IDLE EFFECT: SWEEPING SHEEN --- */
+        .forge-top::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: forge-sheen 7s ease-in-out infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes forge-sheen {
+            0% { left: -100%; }
+            40% { left: 200%; }
+            100% { left: 200%; } /* Pauses before next sweep */
+        }
+
+        /* Hides the sheen when actively auto-forging */
+        #forge-base.is-active .forge-top::after {
+            display: none;
+        }
+
+        .forge-middle {
+            width: 210px; height: 58px;
+            background: #525252; border-radius: 50%; border: 2px solid #171717;
+            position: absolute; top: 20px; left: 5px; z-index: 2;
+        }
+        .forge-bottom {
+            width: 220px; height: 64px;
+            background: #404040; border-radius: 50%; border: 2px solid #171717;
+            position: absolute; top: 42px; left: 0; z-index: 1;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.4);
+        }
+
+        /* ====== FORGE LEVEL BADGE ====== */
+        .forge-badge {
+            position: absolute;
+            bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: 32px; height: 32px; z-index: 10;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .badge-diamond {
+            width: 28px; height: 28px;
+            background: linear-gradient(135deg, #fde047 0%, #facc15 40%, #eab308 70%, #ca8a04 100%);
+            border: 2px solid #171717; border-radius: 4px;
+            transform: rotate(45deg);
+            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .badge-number {
+            position: absolute; font-weight: 900; font-size: 17px;
+            color: #171717;
+            z-index: 2; line-height: 1;
+        }
+
+        /* ====== GEAR / AUTO BUTTON ====== */
+        .forge-gear-btn {
+            position: absolute; bottom: 8px; right: -12px;
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 2px solid #334155; cursor: pointer;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: linear-gradient(145deg, #475569, #1e293b);
+            box-shadow:  4px 4px 8px rgba(0,0,0,0.3), -2px -2px 6px rgba(255,255,255,0.1);
+            z-index: 10;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .forge-gear-btn:active { 
+            transform: scale(0.95);
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -1px -1px 3px rgba(255,255,255,0.1);
+        }
+
+        .gear-svg {
+            width: 24px; height: 24px; opacity: 0.6;
+            transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+        
+        /* Base Label Styling */
+        .auto-label {
+            position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+            font-size: 11px; font-weight: 800; color: #cbd5e1;
+            letter-spacing: 0.5px; white-space: nowrap;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: color 0.3s, text-shadow 0.3s, background 0.3s, opacity 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Active State Glows */
+        .forge-gear-btn.active {
+            border-color: #60a5fa;
+            background: linear-gradient(145deg, #1e3a8a, #0f172a);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.15),
+                0 0 15px rgba(96,165,250,0.4), 0 0 30px rgba(96,165,250,0.2);
+        }
+        .forge-gear-btn.active .gear-svg {
+            opacity: 1; animation: spin 2s linear infinite;
+            filter: drop-shadow(0 0 4px rgba(147,197,253,0.8)) drop-shadow(0 0 8px rgba(96,165,250,0.6));
+            stroke: #93c5fd;
+        }
+        .forge-gear-btn.active::after {
+            content: ''; position: absolute; inset: -4px;
+            border-radius: 50%; border: 2px solid rgba(96,165,250,0.4);
+            animation: ring-pulse 1.8s ease-in-out infinite; pointer-events: none;
+        }
+
+        /* Auto label: visible when off, hidden when active */
+        .forge-gear-btn.active .auto-label { opacity: 0; pointer-events: none; }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes ring-pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.15); }
+        }
+
+        /* ====== NEW BOTTOM PANEL ====== */
+        #bottom-panel {
+            width: 100%;
+            background-color: #ffffff;
+            border-top: 1px solid #cbd5e1;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .blue-btn {
+            background-color: #3b82f6;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            padding: 14px 0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+            transition: background-color 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .blue-btn:active {
+            transform: scale(0.97);
+            background-color: #2563eb;
+        }
+
+        /* ====== PARTICLE LAYER ====== */
+        #particle-layer {
+            position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 20;
+        }
+        .loot-drop {
+            position: absolute; left: 50%;
+            font-weight: bold; font-size: 18px; z-index: 25;
+            animation:
+                arc-x 0.7s cubic-bezier(0.2, 0, 0.8, 1) forwards,
+                arc-y 0.7s cubic-bezier(0.4, 0, 0.8, 1) forwards;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            color: #fff;
+        }
+        @keyframes arc-x { to { transform: translateX(var(--target-x)); } }
+        @keyframes arc-y {
+            0%  { bottom: 100px; }
+            30% { bottom: 150px; }
+            90% { bottom: 50px; opacity: 1; }
+            100%{ bottom: 50px; opacity: 0; }
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div id="mobile-container">
+    
+<div id="forge-area">
+        <div id="particle-layer"></div>
+
+        <div id="forge-base">
+            <div class="forge-top"></div>
+            <div class="forge-middle"></div>
+            <div class="forge-bottom"></div>
+
+            <div class="forge-badge">
+                <div class="badge-diamond"></div>
+                <span class="badge-number">3</span>
+            </div>
+
+            <div class="forge-gear-btn" id="gearBtn" onclick="toggleAutoGear()">
+                <svg class="gear-svg" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="2.8" fill="#cbd5e1"/>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1.08-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1.08 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001.08 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1.08z"
+                        stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="auto-label">Auto</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="bottom-panel">
+        <div class="blue-btn" onclick="toggleAutoGear()">Auto Forge</div>
+    </div>
+
+</div>
+
+<script>
+    let autoGearActive = false;
+    let autoInterval = null;
+    const particleLayer = document.getElementById('particle-layer');
+    const forgeBase = document.getElementById('forge-base');
+    const gearBtn = document.getElementById('gearBtn');
+    function toggleAutoGear() {
+        autoGearActive = !autoGearActive;
+        gearBtn.classList.toggle('active', autoGearActive);
+        
+        // Toggles the active state on the base to hide sheen when running
+        forgeBase.classList.toggle('is-active', autoGearActive);
+
+        if (autoGearActive) {
+            startAutoConsume();
+        } else {
+            stopAutoConsume();
+        }
+    }
+
+    function spawnLoot(text) {
+        const el = document.createElement('div');
+        el.textContent = text;
+        el.className = 'loot-drop';
+        el.style.setProperty('--target-x', `${(Math.random() - 0.5) * 140}px`);
+        particleLayer.appendChild(el);
+        setTimeout(() => el.remove(), 700);
+    }
+
+    function forgeStrike() {
+        forgeBase.style.transform = 'scale(0.96) translateY(4px)';
+        setTimeout(() => forgeBase.style.transform = '', 100);
+        spawnLoot('XP');
+        setTimeout(() => spawnLoot('🪙'), 60);
+    }
+
+    function startAutoConsume() {
+        stopAutoConsume();
+        // Do an immediate strike, then loop
+        forgeStrike();
+        autoInterval = setInterval(() => {
+            forgeStrike();
+        }, 1500);
+    }
+
+    function stopAutoConsume() {
+        if (autoInterval) { 
+            clearInterval(autoInterval); 
+            autoInterval = null; 
+        }
+    }
+
+</script>
+
+</body>
+</html>
