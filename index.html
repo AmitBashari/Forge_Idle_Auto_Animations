@@ -166,8 +166,47 @@
             animation: ring-pulse 1.8s ease-in-out infinite; pointer-events: none;
         }
 
-        /* Auto label: visible when off, hidden when active */
-        .forge-gear-btn.active .auto-label { opacity: 0; pointer-events: none; }
+        /* Auto label: visible when off, hidden when active/waiting */
+        .forge-gear-btn.active .auto-label,
+        .forge-gear-btn.waiting .auto-label { opacity: 0; pointer-events: none; }
+
+        /* ====== WAITING STATE: "Stuck" Stutter-Spin ====== */
+        .forge-gear-btn.waiting {
+            border-color: #fbbf24;
+            background: linear-gradient(145deg, #78350f, #1c1917);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.1),
+                0 0 12px rgba(251,191,36,0.3), 0 0 24px rgba(251,191,36,0.15);
+        }
+        .forge-gear-btn.waiting .gear-svg {
+            opacity: 1;
+            animation: stutter-spin 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 0 3px rgba(253,224,71,0.7)) drop-shadow(0 0 6px rgba(251,191,36,0.5));
+            stroke: #fde047;
+        }
+        .forge-gear-btn.waiting .gear-svg circle { fill: #fde047; }
+        .forge-gear-btn.waiting::after {
+            content: ''; position: absolute; inset: -4px;
+            border-radius: 50%; border: 2px solid rgba(251,191,36,0.35);
+            animation: ring-pulse-amber 2.4s ease-in-out infinite; pointer-events: none;
+        }
+
+        /* Gear tries to turn, catches, rocks back — eager but blocked */
+        @keyframes stutter-spin {
+            0%   { transform: rotate(0deg); }
+            12%  { transform: rotate(35deg); }
+            20%  { transform: rotate(-8deg); }
+            32%  { transform: rotate(20deg); }
+            40%  { transform: rotate(-4deg); }
+            48%  { transform: rotate(10deg); }
+            54%  { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes ring-pulse-amber {
+            0%, 54%, 100% { opacity: 0.2; transform: scale(1); }
+            12% { opacity: 0.7; transform: scale(1.12); }
+            32% { opacity: 0.5; transform: scale(1.08); }
+        }
 
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes ring-pulse {
@@ -262,29 +301,45 @@
     </div>
 
     <div id="bottom-panel">
-        <div class="blue-btn" onclick="toggleAutoGear()">Auto Forge</div>
+        <div class="blue-btn" onclick="cycleState()">Auto Forge — tap to cycle states</div>
     </div>
 
 </div>
 
 <script>
-    let autoGearActive = false;
     let autoInterval = null;
+    // States: 'off' → 'active' → 'waiting' → 'off'
+    let forgeState = 'off';
+
     const particleLayer = document.getElementById('particle-layer');
     const forgeBase = document.getElementById('forge-base');
     const gearBtn = document.getElementById('gearBtn');
-    function toggleAutoGear() {
-        autoGearActive = !autoGearActive;
-        gearBtn.classList.toggle('active', autoGearActive);
-        
-        // Toggles the active state on the base to hide sheen when running
-        forgeBase.classList.toggle('is-active', autoGearActive);
 
-        if (autoGearActive) {
+    function setState(state) {
+        forgeState = state;
+        gearBtn.classList.remove('active', 'waiting');
+        forgeBase.classList.remove('is-active');
+        stopAutoConsume();
+
+        if (state === 'active') {
+            gearBtn.classList.add('active');
+            forgeBase.classList.add('is-active');
             startAutoConsume();
-        } else {
-            stopAutoConsume();
+        } else if (state === 'waiting') {
+            gearBtn.classList.add('waiting');
+            forgeBase.classList.add('is-active');
         }
+    }
+
+    function cycleState() {
+        if (forgeState === 'off') setState('active');
+        else if (forgeState === 'active') setState('waiting');
+        else setState('off');
+    }
+
+    // Keep original toggle for the gear button itself
+    function toggleAutoGear() {
+        cycleState();
     }
 
     function spawnLoot(text) {
