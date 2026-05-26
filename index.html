@@ -162,21 +162,21 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* Active State Glows */
+        /* Active State Glows — soft mint green, not in-your-face */
         .forge-gear-btn.active {
-            border-color: #60a5fa;
-            background: linear-gradient(145deg, #1e3a8a, #0f172a);
+            border-color: #86efac;
+            background: linear-gradient(145deg, #14532d, #0f172a);
             box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.15),
-                0 0 15px rgba(96,165,250,0.4), 0 0 30px rgba(96,165,250,0.2);
+                0 0 12px rgba(134,239,172,0.32), 0 0 24px rgba(134,239,172,0.16);
         }
         .forge-gear-btn.active .gear-svg {
             opacity: 1; animation: spin 2s linear infinite;
-            filter: drop-shadow(0 0 4px rgba(147,197,253,0.8)) drop-shadow(0 0 8px rgba(96,165,250,0.6));
-            stroke: #93c5fd;
+            filter: drop-shadow(0 0 3px rgba(187,247,208,0.7)) drop-shadow(0 0 6px rgba(134,239,172,0.45));
+            stroke: #bbf7d0;
         }
         .forge-gear-btn.active::after {
             content: ''; position: absolute; inset: -4px;
-            border-radius: 50%; border: 2px solid rgba(96,165,250,0.4);
+            border-radius: 50%; border: 2px solid rgba(134,239,172,0.35);
             animation: ring-pulse 1.8s ease-in-out infinite; pointer-events: none;
         }
 
