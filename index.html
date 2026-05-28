@@ -44,7 +44,6 @@
             width: 220px;
             height: 110px;
             z-index: 5;
-            transition: transform 0.05s ease;
         }
 
         .forge-top {
@@ -366,8 +365,7 @@
     }
 
     function forgeStrike() {
-        forgeBase.style.transform = 'scale(0.96) translateY(4px)';
-        setTimeout(() => forgeBase.style.transform = '', 100);
+        // Pump animation removed — forge no longer scales/translates on strike.
         spawnLoot('XP');
         setTimeout(() => spawnLoot('🪙'), 60);
     }
